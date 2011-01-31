@@ -1,4 +1,3 @@
-
 local NULL = nil
 
 scancodes={

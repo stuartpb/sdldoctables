@@ -1007,12 +1007,12 @@ for i=1,#symbols do
       --The printable character used in the description
       local kcchar = string.char(keycode)
 
-      --Lua outputs 000 for 0,
+      --Lua's %q formatting outputs \000 for \0,
       --and it doesn't recognize characters over 126 as non-printing
       if keycode==0 or keycode >= 127 then
         kcchar = string.format("'\\%i'",keycode)
 
-      --Lua's %q formatting also doesn't handle \b or \t correctly
+      --it also doesn't handle \b or \t correctly
       elseif kcchar=='\b' then
         kcchar="'\\b'"
       elseif kcchar=='\t' then
@@ -1024,6 +1024,7 @@ for i=1,#symbols do
         kcchar=string.gsub(string.format("%q",kcchar),'^"(.-)"$',"'%1'")
       end
 
+      --Describe the keycode value
       kcdesc = string.format("%i (0x%02X, %s)",keycode,keycode,kcchar)
     end
 

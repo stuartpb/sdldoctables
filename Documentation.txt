@@ -148,8 +148,8 @@ The name of a key can be obtained using [[SDLGetKeyName]] with the keycode or [[
 ||`LOCKINGCAPSLOCK`||130||''(none)''||''(none)''||
 ||`LOCKINGNUMLOCK`||131||''(none)''||''(none)''||
 ||`LOCKINGSCROLLLOCK`||132||''(none)''||''(none)''||
-||`KP_COMMA`||133||''0x80000085''||'''Keypad ,'''; the Comma key (numeric keypad)||
 ||||<bgcolor="#EDEDED">''The keys above are commented out in SDL_scancode.h''||
+||`KP_COMMA`||133||''0x80000085''||'''Keypad ,'''; the Comma key (numeric keypad)||
 ||`KP_EQUALSAS400`||134||''0x80000086''||'''Keypad = (AS400)'''; the Equals AS400 key (numeric keypad)||
 ||`INTERNATIONAL1`||135||''(none)''||''(none)''; used on Asian keyboards, see footnotes in USB doc||
 ||`INTERNATIONAL2`||136||''(none)''||''(none)''||
@@ -282,3 +282,4 @@ The name of a key can be obtained using [[SDLGetKeyName]] with the keycode or [[
 
 ----
 [[CategoryEnum]], [[CategoryKeyboard]]
+

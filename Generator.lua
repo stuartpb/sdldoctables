@@ -1013,28 +1013,31 @@ for i=1,#symbols do
       --The printable character used in the description
       local kcchar = string.char(keycode)
 
-      --Lua's %q formatting doesn't handle \b or \t as
-      --characters to be escaped
+      --Handle special character values
       if kcchar=='\b' then
-        kcchar="'\\b'"
+        kcchar=[['\b']]
       elseif kcchar=='\t' then
-        kcchar="'\\t'"
+        kcchar=[['\t']]
+      elseif kcchar=='\r' then
+        kcchar=[['\r']]
+      elseif kcchar=='\n' then
+        kcchar=[['\n']]
+      elseif kcchar=='\\' then
+        kcchar=[['\\']]
 
-      --Lua's %q formatting outputs \000 for \0, and it doesn't recognize
-      --all characters outside the ASCII printable range as characters
-      --to be escaped either
       elseif keycode==0 or keycode >= 127 then
-        --SDLK_UNKNOWN is defined as 0 (which counts as decimal)
-        --SDLK_DELETE is defined as decimal 177
+        --SDLK_UNKNOWN is defined as 0
+        --SDLK_DELETE is defined as decimal 177,
+        --and assumedly other syms would follow suit
         kcchar = string.format("'\\%d'",keycode)
+
       elseif keycode==27 then
         --SDLK_ESCAPE is defined as octal 33
         kcchar = string.format("'\\0%o'",keycode)
 
-      --For all other cases, use Lua's %q quoted-printable formatting
-      --with the double-quotes replaced with single-quotes
+      --For all other cases, use the character between single quotes
       else
-        kcchar=string.gsub(string.format("%q",kcchar),'^"(.-)"$',"'%1'")
+        kcchar=string.format("'%s'",kcchar)
       end
 
       --Describe the keycode value

@@ -54,7 +54,7 @@ The name of a key can be obtained using [[SDLGetKeyName]] with the keycode or [[
 ||`8`||37||56 (0x38, '8')||'''8'''||
 ||`9`||38||57 (0x39, '9')||'''9'''||
 ||`0`||39||48 (0x30, '0')||'''0'''||
-||`RETURN`||40||13 (0x0D, '\13')||'''Return'''; the Enter key (main keyboard)||
+||`RETURN`||40||13 (0x0D, '\r')||'''Return'''; the Enter key (main keyboard)||
 ||`ESCAPE`||41||27 (0x1B, '\033')||'''Escape'''; the Esc key||
 ||`BACKSPACE`||42||8 (0x08, '\b')||'''Backspace'''||
 ||`TAB`||43||9 (0x09, '\t')||'''Tab'''; the Tab key||

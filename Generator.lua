@@ -1005,8 +1005,9 @@ for i=1,#symbols do
 
   --If this key has a keycode
   if keycode then
-    --format converted scancodes differently
-    if keycode > 2^31 then
+    --format converted scancodes (the ones that won't fit into a byte)
+    --differently
+    if keycode > 255 then
       kcdesc = string.format("''0x%X''", keycode)
     else
       --The printable character used in the description
@@ -1019,20 +1020,16 @@ for i=1,#symbols do
       elseif kcchar=='\t' then
         kcchar="'\\t'"
 
-      --Lua's %q formatting outputs \000 for \0,
-      --and it doesn't recognize all characters outside
-      --the ASCII printable range as characters
+      --Lua's %q formatting outputs \000 for \0, and it doesn't recognize
+      --all characters outside the ASCII printable range as characters
       --to be escaped either
-      elseif keycode < 32 or keycode >= 127 then
-        if keycode==27 then
-          --SDLK_ESCAPE is defined as octal 33
-          kcchar = string.format("'\\0%o'",keycode)
-        else
-          --SDLK_DELETE is defined as decimal 177,
-          --SDLK_UNKNOWN is defined as 0,
-          --this seems like the base case
-          kcchar = string.format("'\\%d'",keycode)
-        end
+      elseif keycode==0 or keycode >= 127 then
+        --SDLK_UNKNOWN is defined as 0 (which counts as decimal)
+        --SDLK_DELETE is defined as decimal 177
+        kcchar = string.format("'\\%d'",keycode)
+      elseif keycode==27 then
+        --SDLK_ESCAPE is defined as octal 33
+        kcchar = string.format("'\\0%o'",keycode)
 
       --For all other cases, use Lua's %q quoted-printable formatting
       --with the double-quotes replaced with single-quotes

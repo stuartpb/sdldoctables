@@ -404,7 +404,12 @@ end
 keycodes = {
   SDLK_UNKNOWN = '\0',
   SDLK_RETURN = '\r',
-  SDLK_ESCAPE = '\033',
+
+  --SDL_keysym.h defines this as '\033' but Lua treats leading-zero
+  --byte definitions as decimal rather than octal
+  --so since these are getting converted to numbers anyway
+  SDLK_ESCAPE = 27,
+
   SDLK_BACKSPACE = '\b',
   SDLK_TAB = '\t',
   SDLK_SPACE = ' ',
@@ -1007,16 +1012,27 @@ for i=1,#symbols do
       --The printable character used in the description
       local kcchar = string.char(keycode)
 
-      --Lua's %q formatting outputs \000 for \0,
-      --and it doesn't recognize characters over 126 as non-printing
-      if keycode==0 or keycode >= 127 then
-        kcchar = string.format("'\\%i'",keycode)
-
-      --it also doesn't handle \b or \t correctly
-      elseif kcchar=='\b' then
+      --Lua's %q formatting doesn't handle \b or \t as
+      --characters to be escaped
+      if kcchar=='\b' then
         kcchar="'\\b'"
       elseif kcchar=='\t' then
         kcchar="'\\t'"
+
+      --Lua's %q formatting outputs \000 for \0,
+      --and it doesn't recognize all characters outside
+      --the ASCII printable range as characters
+      --to be escaped either
+      elseif keycode < 32 or keycode >= 127 then
+        if keycode==27 then
+          --SDLK_ESCAPE is defined as octal 33
+          kcchar = string.format("'\\0%o'",keycode)
+        else
+          --SDLK_DELETE is defined as decimal 177,
+          --SDLK_UNKNOWN is defined as 0,
+          --this seems like the base case
+          kcchar = string.format("'\\%d'",keycode)
+        end
 
       --For all other cases, use Lua's %q quoted-printable formatting
       --with the double-quotes replaced with single-quotes

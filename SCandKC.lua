@@ -15,8 +15,6 @@ local sconly={}
 local kconly={}
 
 for scancode in pairs(scancodes) do
-  scorder[#scorder+1]=scancode
-
   local kk = string.match(scancode,"SDL_SCANCODE_(.*)")
   local keycode
 
@@ -34,6 +32,9 @@ for scancode in pairs(scancodes) do
   end
 
   if keycodes[keycode] then
+    --add this scancode to the list of scancode names to alphabetize
+    scorder[#scorder+1]=scancode
+
     mappings[scancode]=keycode
   else
     sconly[#sconly+1]=scancode
@@ -41,7 +42,7 @@ for scancode in pairs(scancodes) do
 end
 
 --check for consistency and save scancodeless keycodes
-for keycode, v in pairs(keycodes) do
+for keycode in pairs(keycodes) do
   local kk = string.match(keycode,"SDLK_(.*)")
   local scancode
 
@@ -58,24 +59,132 @@ for keycode, v in pairs(keycodes) do
     scancode="SDL_SCANCODE_"..kk
   end
 
-  if scancodes[scancode] then
-    --verify all names are the same
-    if v<256 and names[scancodes[scancode]+1] ~= string.char(v) then
-      if names[scancodes[scancode]+1] ~= string.upper(string.char(v)) then
-        print(scancode)
-        print('',names[scancodes[scancode]+1])
-        print('',keycode)
-        print('',string.char(v))
-      end
-    end
-  else
-    kconly[#kconly]=k
+  if not scancodes[scancode] then
+    kconly[#kconly+1]=keycode
   end
 end
 
+--sort name lists
+table.sort(scorder)
+table.sort(sconly)
+table.sort(kconly)
+
 --write table-----------------------------------------------------------------
+
+--Open the output file to direct writing to
+--Comment me out to use stdout
+io.output"Scancode_and_Keycode.txt"
+
+--Function that writes all arguments, then a newline.
 local function writeline(...)
   io.write(...)
   io.write'\n'
+end
+
+--Writes a row with a note
+local function writenoterow(text)
+  return writeline([[||||||<bgcolor="#EDEDED">'']],text,"''||")
+end
+
+
+local function htmlent(char)
+  return string.format("&#%d;",string.byte(char))
+end
+
+local function wikisafe(str)
+  return string.gsub(str,"[`'|]",htmlent)
+end
+
+--write header
+writeline[[== Values ==]]
+writeline[[||<bgcolor="#EDEDED">''SDL_Scancode Value''||<bgcolor="#EDEDED">''SDL_Keycode Value''||<bgcolor="#EDEDED">''Key Name''||]]
+
+--write mapped values
+for i=1,#scorder do
+  local scancode = scorder[i]
+  local keycode = mappings[scancode]
+
+  --for indexing comments
+  local base = string.match(scancode,"SDL_SCANCODE_(.*)")
+
+  --Get name from scancode
+  local name = names[scancodes[scancode]+1]
+
+  if name then name = wikisafe(name) end
+
+  local keyname
+  if comments[base] then
+    local comment=wikisafe(comments[base])
+    if name then
+      keyname=string.format([["'''%s'''" (%s)]],name,comment)
+    else
+      keyname=string.format([["" (no name, empty string; %s)]],comment)
+    end
+  else
+    if name then
+      keyname=[["''']]..name..[['''"]]
+    else
+      keyname=[["" (no name, empty string)]]
+    end
+  end
+  writeline("||",scancode,"||",keycode,"||",keyname,"||")
+end
+
+--write scancode-only values
+
+writenoterow"These physical keys do not have corresponding virtual key values"
+
+for i=1,#sconly do
+  local scancode = sconly[i]
+
+  --for indexing comments
+  local base = string.match(scancode,"SDL_SCANCODE_(.*)")
+
+  --Get name from scancode
+  local name = names[scancodes[scancode]+1]
+
+  if name then name = wikisafe(name) end
+
+  local keyname
+
+  if comments[base] then
+    local comment=wikisafe(comments[base])
+    if name then
+      keyname=string.format([["'''%s'''" (%s)]],name,comment)
+    else
+      keyname=string.format([["" (no name, empty string; %s)]],comment)
+    end
+  else
+    if name then
+      keyname=[["''']]..name..[['''"]]
+    else
+      keyname=[["" (no name, empty string)]]
+    end
+  end
+
+  writeline("||",scancode,"||''(none)''||",keyname,"||")
+end
+
+writenoterow"These virtual key values do not have corresponding physical keys"
+
+for i=1,#kconly do
+  local keycode = kconly[i]
+
+  --for indexing comments
+  local base = string.match(keycode,"SDLK_(.*)")
+
+  --Get name from keycode
+  --if there's no scancode, the keycode must be defined as a character byte
+  local name = wikisafe(string.char(keycodes[keycode]))
+
+  local keyname
+
+  if comments[base] then
+    keyname=string.format([["'''%s'''" (%s)]],name,wikisafe(comments[base]))
+  else
+    keyname=[["''']]..name..[['''"]]
+  end
+
+  writeline("||''(none)''||",keycode,"||",keyname,"||")
 end
 

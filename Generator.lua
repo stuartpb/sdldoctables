@@ -969,10 +969,26 @@ local symbols={}; do
   end
 end
 
---Write rows for each key
-for i=1,#symbols do
-  local symbol=symbols[i]
-  local scancode=scancodes["SDL_SCANCODE_"..symbol]
+local writerow
+function writerow(symbol)
+  local scancodename, keysymname
+
+  --' and ` have mismatched names
+  if symbol == "APOSTROPHE" then
+    scancodename = "SDL_SCANCODE_APOSTROPHE"
+    keysymname = "SDLK_QUOTE"
+  elseif symbol == "GRAVE" then
+    scancodename = "SDL_SCANCODE_GRAVE"
+    keysymname = "SDLK_BACKQUOTE"
+
+  --every other key's keycode name matches the scancode name,
+  --except for the single-character letters which are lowercase
+  else
+    scancodename="SDL_SCANCODE_"..symbol
+    keysymname="SDLK_"..(#symbol==1 and string.lower(symbol) or symbol)
+  end
+
+  local scancode=scancodes[scancodename]
 
   --Writes a row with a note
   local function writenoterow(text)
@@ -997,8 +1013,7 @@ for i=1,#symbols do
 
   end
 
-  --The keycode is the symbol prefixed with "SDLK_", lowercased for single-character symbols (letters)
-  local keycode=keycodes["SDLK_"..(#symbol==1 and string.lower(symbol) or symbol)]
+  local keycode=keycodes[keysymname]
 
   --The description of the keycode
   local kcdesc
@@ -1060,6 +1075,11 @@ for i=1,#symbols do
 
   --Write the row for this key's entry
   writeline("||`",symbol,"`||",tostring(scancode),"||",kcdesc,"||",name, "||")
+end
+
+--Write rows for each key
+for i=1,#symbols do
+  writerow(symbols[i])
 end
 
 --Write the footer

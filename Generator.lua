@@ -349,8 +349,8 @@ comments={
   KP_GREATER="the Greater key (numeric keypad)",
   KP_AMPERSAND="the & key (numeric keypad)",
   KP_DBLAMPERSAND="the && key (numeric keypad)",
-  KP_VERTICALBAR="the `|` key (numeric keypad)",
-  KP_DBLVERTICALBAR="the `||` key (numeric keypad)",
+  KP_VERTICALBAR="the | key (numeric keypad)",
+  KP_DBLVERTICALBAR="the || key (numeric keypad)",
   KP_COLON="the : key (numeric keypad)",
   KP_HASH="the # key (numeric keypad)",
   KP_SPACE="the Space key (numeric keypad)",
@@ -992,7 +992,7 @@ function writerow(symbol)
 
   --Writes a row with a note
   local function writenoterow(text)
-    return writeline([[||||<bgcolor="#EDEDED">'']],text,"''||")
+    return writeline([[||||||||<bgcolor="#EDEDED">'']],text,"''||")
   end
 
   --Write notes before certain keys' rows
@@ -1030,30 +1030,36 @@ function writerow(symbol)
 
       --Handle special character values
       if kcchar=='\b' then
-        kcchar=[['\b']]
+        kcchar=[[\b]]
       elseif kcchar=='\t' then
-        kcchar=[['\t']]
+        kcchar=[[\t]]
       elseif kcchar=='\r' then
-        kcchar=[['\r']]
+        kcchar=[[\r]]
       elseif kcchar=='\n' then
-        kcchar=[['\n']]
+        kcchar=[[\n]]
       elseif kcchar=='\\' then
-        kcchar=[['\\']]
+        kcchar=[[\\]]
 
       elseif keycode==0 or keycode >= 127 then
         --SDLK_UNKNOWN is defined as 0
         --SDLK_DELETE is defined as decimal 177,
         --and assumedly other syms would follow suit
-        kcchar = string.format("'\\%d'",keycode)
+        kcchar = string.format("\\%d",keycode)
 
       elseif keycode==27 then
         --SDLK_ESCAPE is defined as octal 33
-        kcchar = string.format("'\\0%o'",keycode)
+        kcchar = string.format("\\0%o",keycode)
 
-      --For all other cases, use the character between single quotes
-      else
-        kcchar=string.format("'%s'",kcchar)
+      elseif kcchar=="'" or kcchar=='`' then
+      --tilde and grave are pretty much a nightmare in the wiki encoding-
+      --HTML-encode them so they can't interfere with the markup
+        kcchar = string.format("&#%d;",keycode)
       end
+
+      --For all other cases, just use the character plain
+
+      --put the character between single quotes
+      kcchar = "'"..kcchar.."'"
 
       --Describe the keycode value
       kcdesc = string.format("%i (0x%02X, %s)",keycode,keycode,kcchar)
@@ -1067,11 +1073,20 @@ function writerow(symbol)
   local name = names[scancode+1]
 
   --Format the name appropriately
-  if name then name = "'''"..name.."'''"
+  if name then
+    if name=="'" or name=='`' then
+      --see above comment about tilde and grave
+      name = string.format("&#%d;",string.byte(name))
+    end
+    name = "'''"..name.."'''"
   else name="''(none)''" end
 
   --If there are comments for this key, append them to the name field
   if comments[symbol] then name = name .. '; '..comments[symbol] end
+
+  --Bars in names wreak havok like tildes and apostrophes
+  name = string.gsub(name,'[|]',
+    function(bar) return string.format("&#%d;",string.byte(bar)) end)
 
   --Write the row for this key's entry
   writeline("||`",symbol,"`||",tostring(scancode),"||",kcdesc,"||",name, "||")

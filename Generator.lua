@@ -392,7 +392,7 @@ comments={
   BRIGHTNESSUP="the Brightness Up key",
   KBDILLUMTOGGLE="the Keyboard Illumination Toggle key",
   KBDILLUMDOWN="the Keyboard Illumination Down key",
-  KBDILLUMUP="the keyboard Illumination Up key",
+  KBDILLUMUP="the Keyboard Illumination Up key",
 }
 
 --A function replicating the behavior of the SDL_SCANCODE_TO_KEYCODE macro in SDL_keysym.h.
@@ -928,13 +928,17 @@ local function writeline(...)
   io.write'\n'
 end
 
+local function htmlent(byte)
+  return string.format("&#%d;",byte)
+end
+
 --Write the introduction
 writeline[=[
 #pragma section-numbers off
 #pragma disable-camelcase
 ||<tablewidth="100%" style="color: #FF0000;" :> DRAFT||
 
-= SDL_ScanCode and SDLKey =
+= SDL_Scancode and SDL_Keycode =
 The SDL physical and virtual key representations.
 
 SDL_ScanCode values are used to represent the physical location of a keyboard key on the keyboard. Values of this type are used to represent keyboard keys in the key.keysym.scancode field of the [[SDL_Event]] structure, among other places. The values in the SDL_ScanCode enumeration are based on the USB usage page standard (http://www.usb.org/developers/devclass_docs/Hut1_12.pdf).
@@ -1053,12 +1057,11 @@ function writerow(symbol)
       elseif keycode==27 then
         --SDLK_ESCAPE is defined as octal 33
         kcchar = string.format("\\0%o",keycode)
+      end
 
-      elseif kcchar=="'" or kcchar=='`' then
       --tilde and grave are pretty much a nightmare in the wiki encoding-
       --HTML-encode them so they can't interfere with the markup
-        kcchar = string.format("&#%d;",keycode)
-      end
+      kcchar = string.gsub(kcchar,"['`]",htmlent(keycode))
 
       --For all other cases, just use the character plain
 
@@ -1080,7 +1083,7 @@ function writerow(symbol)
   if name then
     if name=="'" or name=='`' then
       --see above comment about tilde and grave
-      name = string.format("&#%d;",string.byte(name))
+      name = htmlent(string.byte(name))
     end
     name = "'''"..name.."'''"
   else name="''(none)''" end
@@ -1090,7 +1093,7 @@ function writerow(symbol)
 
   --Bars in names wreak havok like tildes and apostrophes
   name = string.gsub(name,'[|]',
-    function(bar) return string.format("&#%d;",string.byte(bar)) end)
+    function(bar) return htmlent(string.byte(bar)) end)
 
   --Write the row for this key's entry
   writeline("||`",symbol,"`||",tostring(scancode),"||",kcdesc,"||",name, "||")
@@ -1112,6 +1115,10 @@ writeline[=[
       SDL_GetScancodeName(event->key.keysym.scancode),
       SDL_GetKeyName(event->key.keysym.sym));
 }}}
+
+== Related Enumerations ==
+ .[[SDL_Scancode]]
+ .[[SDL_Keycode]]
 
 == Related Functions ==
  .[[SDL_GetKeyboardState]]

@@ -1039,6 +1039,10 @@ function writerow(symbol)
         kcchar=[[\n]]
       elseif kcchar=='\\' then
         kcchar=[[\\]]
+      elseif kcchar=="'" then
+        kcchar=[[\']]
+      elseif kcchar=='"' then
+        kcchar=[[\"]]
 
       elseif keycode==0 or keycode >= 127 then
         --SDLK_UNKNOWN is defined as 0
@@ -1117,6 +1121,7 @@ writeline[=[
  .[[SDL_GetScancodeName]]
 
 ----
-[[CategoryEnum]], [[CategoryKeyboard]]
+#[[CategoryEnum]], [[CategoryKeyboard]]
+(no category)
 ]=]
 

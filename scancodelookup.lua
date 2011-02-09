@@ -32,5 +32,5 @@ for i=1,#order do
   local v=scancodes[scancode]
 
   writeline(string.format(
-    "||%i||0x%03x||%s||",v,v,scancode))
+    "||%i||0x%03X||%s||",v,v,scancode))
 end

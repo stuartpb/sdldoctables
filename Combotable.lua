@@ -9,7 +9,7 @@ local names = SDLdat.names
 
 --Open the output file to direct writing to
 --Comment me out to use stdout
-io.output"Documentation.txt"
+io.output"Combined_Table.txt"
 
 --Function that writes all arguments, then a newline.
 local function writeline(...)

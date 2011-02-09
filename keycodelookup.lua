@@ -22,27 +22,35 @@ local function htmlent(byte)
   return string.format("&#%d;",byte)
 end
 
-writeline[[
+writeline[=[
 #pragma section-numbers off
 #pragma disable-camelcase
 ||<tablewidth="100%" style="color: #FF0000;" :> DRAFT||
 
 = SDL Keycode Lookup Table =
 
-||<bgcolor="#EDEDED">''Unsigned Decimal Value''||<bgcolor="#EDEDED">''Hex Value (Char)''||<bgcolor="#EDEDED">''SDL_Keycode Constant''||]]
+Keycodes for keys with printable characters are represented by the character byte in parentheses. Keycodes without character representations are determined by their [[SDL_Scancode|scancode]] bitwise AND-ed with `1<<30` (0x80000000).
+
+||<bgcolor="#EDEDED">''Decimal Value''||<bgcolor="#EDEDED">''Hex Value (Char)''||<bgcolor="#EDEDED">''SDL_Keycode Constant''||]=]
 
 for i=1,#order do
   local keycode=order[i]
   local v=keycodes[keycode]
 
-  --The description of the keycode
-  local desc
+  --The decimal value and description of the keycode
+  local dec, desc
 
   --format converted scancodes (the ones that won't fit into a byte)
   --differently
   if v > 255 then
+    --for some reason I'm not getting the right output from passing
+    --these normally on my machine...
+    dec = string.format("-%u",-v)
+    --output the whole 4 bytes
     desc = string.format("0x%8X", v)
   else
+    dec = string.format("%d",v)
+
     --The printable character used in the description
     local char = string.char(v)
 
@@ -86,6 +94,5 @@ for i=1,#order do
     desc = string.format("0x%02X (%s)",v,char)
   end
 
-  writeline(string.format(
-    "||%u||",v),desc,"||",keycode,"||")
+  writeline("||",dec,"||",desc,"||",keycode,"||")
 end

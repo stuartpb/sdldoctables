@@ -86,6 +86,10 @@ local function writenoterow(text)
   return writeline([[||||||<bgcolor="#EDEDED">'']],text,"''||")
 end
 
+--Write a row for a key
+local function writekeyrow(scancode,keycode,name)
+  return writeline("||",name,"||",scancode,"||",keycode,"||")
+end
 
 local function htmlent(char)
   return string.format("&#%d;",string.byte(char))
@@ -97,7 +101,7 @@ end
 
 --write header
 writeline[[== Values ==]]
-writeline[[||<bgcolor="#EDEDED">''SDL_Scancode Value''||<bgcolor="#EDEDED">''SDL_Keycode Value''||<bgcolor="#EDEDED">''Key Name''||]]
+writeline[[||<bgcolor="#EDEDED">''Key Name''||<bgcolor="#EDEDED">''SDL_Scancode Value''||<bgcolor="#EDEDED">''SDL_Keycode Value''||]]
 
 --write mapped values
 for i=1,#scorder do
@@ -127,7 +131,7 @@ for i=1,#scorder do
       keyname=[["" (no name, empty string)]]
     end
   end
-  writeline("||",scancode,"||",keycode,"||",keyname,"||")
+  writekeyrow(scancode,keycode,keyname)
 end
 
 --write scancode-only values
@@ -162,7 +166,7 @@ for i=1,#sconly do
     end
   end
 
-  writeline("||",scancode,"||''(none)''||",keyname,"||")
+  writekeyrow(scancode,"''(none)''",keyname)
 end
 
 writenoterow"These virtual key values do not have corresponding physical keys"
@@ -185,6 +189,6 @@ for i=1,#kconly do
     keyname=[["''']]..name..[['''"]]
   end
 
-  writeline("||''(none)''||",keycode,"||",keyname,"||")
+  writekeyrow("''(none)''",keycode,keyname)
 end
 

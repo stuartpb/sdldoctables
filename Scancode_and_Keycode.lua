@@ -18,14 +18,8 @@ for scancode in pairs(scancodes) do
   local kk = string.match(scancode,"SDL_SCANCODE_(.*)")
   local keycode
 
-    --' and ` have mismatched names
-  if scancode == "SDL_SCANCODE_APOSTROPHE" then
-    keycode = "SDLK_QUOTE"
-  elseif scancode == "SDL_SCANCODE_GRAVE" then
-    keycode = "SDLK_BACKQUOTE"
-
   --lower-case letters
-  elseif #kk==1 then
+  if #kk==1 then
     keycode="SDLK_"..string.lower(kk)
   else
     keycode="SDLK_"..kk
@@ -46,14 +40,8 @@ for keycode in pairs(keycodes) do
   local kk = string.match(keycode,"SDLK_(.*)")
   local scancode
 
-    --' and ` have mismatched names
-  if keycode == "SDLK_QUOTE" then
-    scancode = "SDL_SCANCODE_APOSTROPHE"
-  elseif keycode == "SDLK_BACKQUOTE" then
-    scancode = "SDL_SCANCODE_GRAVE"
-
   --capitalize letters
-  elseif #kk==1 then
+  if #kk==1 then
     scancode="SDL_SCANCODE_"..string.upper(kk)
   else
     scancode="SDL_SCANCODE_"..kk
